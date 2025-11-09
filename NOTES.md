@@ -6,6 +6,16 @@ To run F# scripts, use the following command:
 dotnet fsi script.fsx
 ```
 
+To get autoformatting in VSCode, install ionide extension and then in preferences add
+the settings below. Then click Install Globally for fantomas when prompted.
+
+```json
+  "[fsharp]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "Ionide.Ionide-fsharp"
+  }
+```
+
 ## User Stories
 
 User can type todo in terminal and be greeted with a prompt to choose:
@@ -15,8 +25,8 @@ User can type todo in terminal and be greeted with a prompt to choose:
 
 ## Steps
 
-- prompt to get user to choose one of two options
-- do an action after a prompt choice is made
+- ✅ prompt to get user to choose one of two options
+- ✅ do an action after a prompt choice is made
 - add task: prompt for text input, take that input and save it
 - view tasks: retrieve saved tasks and display them
 - complete task: scroll through a list and do actions on each item

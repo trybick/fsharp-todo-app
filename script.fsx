@@ -19,12 +19,18 @@ let promptForAction (options: string[]) =
         let keyPressed = Console.ReadKey true
 
         match keyPressed.Key with
-        | ConsoleKey.UpArrow   -> if actionIndex > 0 then actionIndex <- actionIndex - 1
-        | ConsoleKey.DownArrow -> if actionIndex < options.Length - 1 then actionIndex <- actionIndex + 1
-        | ConsoleKey.Enter     -> isPromptOpen <- false
+        | ConsoleKey.UpArrow ->
+            if actionIndex > 0 then
+                actionIndex <- actionIndex - 1
+        | ConsoleKey.DownArrow ->
+            if actionIndex < options.Length - 1 then
+                actionIndex <- actionIndex + 1
+        | ConsoleKey.Enter -> isPromptOpen <- false
         | _ -> ()
 
     actionIndex
+
+// let addTask () =
 
 let mainActions: string[] = [| "Add Task"; "View Tasks" |]
 let mainAction = promptForAction mainActions
