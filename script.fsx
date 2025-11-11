@@ -1,10 +1,10 @@
 open System
 
-let promptForAction (options: string[]) =
+let promptForAction (options: string[]) : int =
     let mutable actionIndex = 0
-    let mutable isPromptOpen = true
+    let mutable isOpen = true
 
-    while isPromptOpen do
+    while isOpen do
         Console.Clear()
         printfn "Use ↑ ↓ to choose, Enter to select:\n"
 
@@ -25,17 +25,40 @@ let promptForAction (options: string[]) =
         | ConsoleKey.DownArrow ->
             if actionIndex < options.Length - 1 then
                 actionIndex <- actionIndex + 1
-        | ConsoleKey.Enter -> isPromptOpen <- false
+        | ConsoleKey.Enter -> isOpen <- false
         | _ -> ()
 
     actionIndex
 
-// let addTask () =
+let promptForAddTask () =
+    Console.Clear()
+
+    let mutable input = ""
+    let mutable isOpen = true
+
+    while isOpen do
+        let key = Console.ReadKey true
+
+        match key.Key with
+        | ConsoleKey.Enter -> isOpen <- false
+        | ConsoleKey.Escape ->
+            input <- ""
+            isOpen <- false
+        | _ ->
+            Console.Write key.KeyChar
+            input <- input + string key.KeyChar
+
+    Console.WriteLine()
+    input
 
 let mainActions: string[] = [| "Add Task"; "View Tasks" |]
 let mainAction = promptForAction mainActions
 
 match mainAction with
-| 0 -> printfn "Hello!"
+| 0 ->
+    let task = promptForAddTask ()
+    printfn "You entered: %s" task
+
+// saveTask
 | 1 -> printfn "Goodbye!"
 | _ -> ()
