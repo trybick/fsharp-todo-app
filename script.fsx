@@ -1,4 +1,7 @@
+#r "nuget:Microsoft.Data.Sqlite"
+
 open System
+open Microsoft.Data.Sqlite
 
 let promptForMainAction () : int =
     let mainActions: string[] = [| "Add Task"; "View Tasks" |]
@@ -53,12 +56,23 @@ let promptForAddTask () =
     Console.WriteLine()
     input
 
+let saveTask (task: string) =
+    use conn = new SqliteConnection("Data Source=tasks.db")
+    conn.Open()
+
+    use cmd = conn.CreateCommand()
+    cmd.CommandText <- "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, text TEXT)"
+    cmd.ExecuteNonQuery() |> ignore
+
+    cmd.CommandText <- "INSERT INTO tasks (text) VALUES ($text)"
+    cmd.Parameters.AddWithValue("$text", task) |> ignore
+    cmd.ExecuteNonQuery() |> ignore
+
 let mainAction = promptForMainAction ()
 
 match mainAction with
 | 0 ->
     let task = promptForAddTask ()
-    // saveTask
-
+    saveTask (task)
 | 1 -> printfn "Goodbye!"
 | _ -> ()
