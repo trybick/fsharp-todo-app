@@ -80,6 +80,13 @@ let getSavedTasks () : list<string> =
     [ while reader.Read() do
           yield reader.GetString 0 ]
 
+let printTasks (tasks: string list) =
+    Console.Clear()
+    printfn "All tasks:"
+
+    for task in tasks do
+        printfn "- %s" task
+
 
 let mainAction = promptForMainAction ()
 
@@ -90,9 +97,6 @@ match mainAction with
 
 | 1 ->
     let tasks = getSavedTasks ()
-    printfn "All tasks:"
-
-    for task in tasks do
-        printfn "- %s" task
+    printTasks tasks
 
 | _ -> ()
