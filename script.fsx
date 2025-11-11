@@ -1,6 +1,8 @@
 open System
 
-let promptForAction (options: string[]) : int =
+let promptForMainAction () : int =
+    let mainActions: string[] = [| "Add Task"; "View Tasks" |]
+
     let mutable actionIndex = 0
     let mutable isOpen = true
 
@@ -8,13 +10,13 @@ let promptForAction (options: string[]) : int =
         Console.Clear()
         printfn "Use ↑ ↓ to choose, Enter to select:\n"
 
-        for i = 0 to options.Length - 1 do
+        for i = 0 to mainActions.Length - 1 do
             if i = actionIndex then
                 Console.ForegroundColor <- ConsoleColor.Green
-                printfn "> %s" options.[i]
+                printfn "> %s" mainActions.[i]
                 Console.ResetColor()
             else
-                printfn "  %s" options.[i]
+                printfn "  %s" mainActions.[i]
 
         let keyPressed = Console.ReadKey true
 
@@ -23,7 +25,7 @@ let promptForAction (options: string[]) : int =
             if actionIndex > 0 then
                 actionIndex <- actionIndex - 1
         | ConsoleKey.DownArrow ->
-            if actionIndex < options.Length - 1 then
+            if actionIndex < mainActions.Length - 1 then
                 actionIndex <- actionIndex + 1
         | ConsoleKey.Enter -> isOpen <- false
         | _ -> ()
@@ -51,14 +53,12 @@ let promptForAddTask () =
     Console.WriteLine()
     input
 
-let mainActions: string[] = [| "Add Task"; "View Tasks" |]
-let mainAction = promptForAction mainActions
+let mainAction = promptForMainAction ()
 
 match mainAction with
 | 0 ->
     let task = promptForAddTask ()
-    printfn "You entered: %s" task
+    // saveTask
 
-// saveTask
 | 1 -> printfn "Goodbye!"
 | _ -> ()
