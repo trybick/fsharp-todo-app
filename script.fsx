@@ -1,4 +1,4 @@
-#r "nuget:Microsoft.Data.Sqlite"
+#r "nuget: Microsoft.Data.Sqlite, 8.0.8"
 
 open System
 open Microsoft.Data.Sqlite
@@ -57,7 +57,7 @@ let promptForAddTask () =
     input
 
 let saveTask (task: string) =
-    use conn = new SqliteConnection("Data Source=tasks.db")
+    use conn = new SqliteConnection "Data Source=tasks.db"
     conn.Open()
 
     use cmd = conn.CreateCommand()
@@ -69,7 +69,7 @@ let saveTask (task: string) =
     cmd.ExecuteNonQuery() |> ignore
 
 let getSavedTasks () : list<string> =
-    use conn = new SqliteConnection("Data Source=tasks.db")
+    use conn = new SqliteConnection "Data Source=tasks.db"
     conn.Open()
 
     use cmd = conn.CreateCommand()
