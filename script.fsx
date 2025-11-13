@@ -97,7 +97,6 @@ let printTasks (tasks: string list) =
     for task in tasks do
         printfn "- %s" task
 
-[<EntryPoint>]
 let main _ =
     ensureTableExists ()
     let mutable isRunning = true
@@ -114,3 +113,5 @@ let main _ =
         | _ -> ()
 
     0
+
+main [||]
