@@ -4,7 +4,7 @@ open System
 open Microsoft.Data.Sqlite
 
 let promptForMainAction () : int =
-    let mainActions: string[] = [| "Add Task"; "View Tasks" |]
+    let mainActions: string[] = [| "Add Task"; "View Tasks"; "Exit" |]
 
     let mutable actionIndex = 0
     let mutable isOpen = true
@@ -56,17 +56,27 @@ let promptForAddTask () =
     Console.WriteLine()
     input
 
-let saveTask (task: string) =
+let ensureTableExists () =
     use conn = new SqliteConnection "Data Source=tasks.db"
     conn.Open()
-
     use cmd = conn.CreateCommand()
     cmd.CommandText <- "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, text TEXT)"
     cmd.ExecuteNonQuery() |> ignore
 
-    cmd.CommandText <- "INSERT INTO tasks (text) VALUES ($text)"
-    cmd.Parameters.AddWithValue("$text", task) |> ignore
-    cmd.ExecuteNonQuery() |> ignore
+let saveTask (task: string) =
+    if String.IsNullOrWhiteSpace task then
+        ()
+    else
+        use conn = new SqliteConnection "Data Source=tasks.db"
+        conn.Open()
+
+        use cmd = conn.CreateCommand()
+        cmd.CommandText <- "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, text TEXT)"
+        cmd.ExecuteNonQuery() |> ignore
+
+        cmd.CommandText <- "INSERT INTO tasks (text) VALUES ($text)"
+        cmd.Parameters.AddWithValue("$text", task) |> ignore
+        cmd.ExecuteNonQuery() |> ignore
 
 let getSavedTasks () : list<string> =
     use conn = new SqliteConnection "Data Source=tasks.db"
@@ -87,16 +97,20 @@ let printTasks (tasks: string list) =
     for task in tasks do
         printfn "- %s" task
 
+[<EntryPoint>]
+let main _ =
+    ensureTableExists ()
+    let mutable isRunning = true
 
-let mainAction = promptForMainAction ()
+    while isRunning do
+        match promptForMainAction () with
+        | 0 ->
+            let task = promptForAddTask ()
+            saveTask task
+        | 1 ->
+            let tasks = getSavedTasks ()
+            printTasks tasks
+        | 2 -> isRunning <- false
+        | _ -> ()
 
-match mainAction with
-| 0 ->
-    let task = promptForAddTask ()
-    saveTask task
-
-| 1 ->
-    let tasks = getSavedTasks ()
-    printTasks tasks
-
-| _ -> ()
+    0
