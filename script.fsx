@@ -78,24 +78,26 @@ let saveTask (task: string) =
         cmd.Parameters.AddWithValue("$text", task) |> ignore
         cmd.ExecuteNonQuery() |> ignore
 
-let getSavedTasks () : list<string> =
+let getSavedTasks () : (int * string) list =
     use conn = new SqliteConnection "Data Source=tasks.db"
     conn.Open()
-
     use cmd = conn.CreateCommand()
     cmd.CommandText <- "SELECT id, text FROM tasks"
-
     use reader = cmd.ExecuteReader()
 
     [ while reader.Read() do
-          yield reader.GetString 0 ]
+          yield reader.GetInt32 0, reader.GetString 1 ]
 
-let printTasks (tasks: string list) =
+
+let printTasks (tasks: (int * string) list) =
     Console.Clear()
-    printfn "All tasks:"
+    printfn "Tasks:\n"
 
-    for task in tasks do
-        printfn "- %s" task
+    for _id, text in tasks do
+        printfn "- %s" text
+
+    printfn "\nPress any key to return..."
+    Console.ReadKey true |> ignore
 
 let main _ =
     ensureTableExists ()
