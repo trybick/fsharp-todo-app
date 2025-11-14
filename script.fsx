@@ -78,6 +78,14 @@ let saveTask (task: string) =
         cmd.Parameters.AddWithValue("$text", task) |> ignore
         cmd.ExecuteNonQuery() |> ignore
 
+let deleteTask (id: int) =
+    use conn = new SqliteConnection "Data Source=tasks.db"
+    conn.Open()
+    use cmd = conn.CreateCommand()
+    cmd.CommandText <- "DELETE FROM tasks WHERE id = $id"
+    cmd.Parameters.AddWithValue("$id", id) |> ignore
+    cmd.ExecuteNonQuery() |> ignore
+
 let getSavedTasks () : (int * string) list =
     use conn = new SqliteConnection "Data Source=tasks.db"
     conn.Open()
@@ -96,27 +104,47 @@ let printTasks (tasks: (int * string) list) =
         printfn "\nPress any key to return..."
         Console.ReadKey true |> ignore
     else
-        let mutable index = 0
+        let mutable currentTasks = tasks
+        let mutable selectedIndex = 0
         let mutable isOpen = true
 
         while isOpen do
             Console.Clear()
-            printfn "Tasks (↑ ↓ to move, Esc to exit):\n"
+            printfn "Tasks (Enter = delete, Esc = exit):\n"
 
-            for i = 0 to tasks.Length - 1 do
-                let _, text = tasks.[i]
+            for i = 0 to currentTasks.Length - 1 do
+                let _, text = currentTasks.[i]
 
-                if i = index then
+                if i = selectedIndex then
                     Console.ForegroundColor <- ConsoleColor.Green
                     printfn "> %s" text
                     Console.ResetColor()
                 else
                     printfn "  %s" text
 
-            match Console.ReadKey true with
-            | key when key.Key = ConsoleKey.UpArrow && index > 0 -> index <- index - 1
-            | key when key.Key = ConsoleKey.DownArrow && index < tasks.Length - 1 -> index <- index + 1
-            | key when key.Key = ConsoleKey.Escape -> isOpen <- false
+            let key = Console.ReadKey true
+
+            match key.Key with
+            | ConsoleKey.UpArrow ->
+                if selectedIndex > 0 then
+                    selectedIndex <- selectedIndex - 1
+
+            | ConsoleKey.DownArrow ->
+                if selectedIndex < currentTasks.Length - 1 then
+                    selectedIndex <- selectedIndex + 1
+
+            | ConsoleKey.Enter ->
+                let id, _ = currentTasks.[selectedIndex]
+                deleteTask id
+                currentTasks <- getSavedTasks ()
+
+                if currentTasks.IsEmpty then
+                    isOpen <- false
+                else
+                    selectedIndex <- min selectedIndex (currentTasks.Length - 1)
+
+            | ConsoleKey.Escape -> isOpen <- false
+
             | _ -> ()
 
 let main _ =
