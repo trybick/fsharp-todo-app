@@ -90,14 +90,34 @@ let getSavedTasks () : (int * string) list =
 
 
 let printTasks (tasks: (int * string) list) =
-    Console.Clear()
-    printfn "Tasks:\n"
+    if tasks.IsEmpty then
+        Console.Clear()
+        printfn "No tasks found."
+        printfn "\nPress any key to return..."
+        Console.ReadKey true |> ignore
+    else
+        let mutable index = 0
+        let mutable isOpen = true
 
-    for _id, text in tasks do
-        printfn "- %s" text
+        while isOpen do
+            Console.Clear()
+            printfn "Tasks (↑ ↓ to move, Esc to exit):\n"
 
-    printfn "\nPress any key to return..."
-    Console.ReadKey true |> ignore
+            for i = 0 to tasks.Length - 1 do
+                let _, text = tasks.[i]
+
+                if i = index then
+                    Console.ForegroundColor <- ConsoleColor.Green
+                    printfn "> %s" text
+                    Console.ResetColor()
+                else
+                    printfn "  %s" text
+
+            match Console.ReadKey true with
+            | key when key.Key = ConsoleKey.UpArrow && index > 0 -> index <- index - 1
+            | key when key.Key = ConsoleKey.DownArrow && index < tasks.Length - 1 -> index <- index + 1
+            | key when key.Key = ConsoleKey.Escape -> isOpen <- false
+            | _ -> ()
 
 let main _ =
     ensureTableExists ()
