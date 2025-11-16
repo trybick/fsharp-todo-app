@@ -97,7 +97,7 @@ let getSavedTasks () : (int * string) list =
           yield reader.GetInt32 0, reader.GetString 1 ]
 
 
-let printTasks (tasks: (int * string) list) =
+let displayTasks (tasks: (int * string) list) =
     if tasks.IsEmpty then
         Console.Clear()
         printfn "No tasks found."
@@ -158,7 +158,7 @@ let main _ =
             saveTask task
         | 1 ->
             let tasks = getSavedTasks ()
-            printTasks tasks
+            displayTasks tasks
         | 2 -> isRunning <- false
         | _ -> ()
 
